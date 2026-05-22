@@ -1,0 +1,18 @@
+<?php
+include 'layout.php';
+require_role(3);
+if (isset($_POST['save_staff'])) {
+    $id=(int)($_POST['id']??0); $name=trim($_POST['name']); $email=trim($_POST['email']); $role=(int)$_POST['role']; $status=$_POST['status'];
+    if ($id) { $stmt=mysqli_prepare($conn,"UPDATE account SET Name=?, Email=?, Account_Type=?, Status=? WHERE ID=? AND Account_Type IN (2,3)"); mysqli_stmt_bind_param($stmt,'ssisi',$name,$email,$role,$status,$id); mysqli_stmt_execute($stmt); }
+    else { $password=password_hash($_POST['password'] ?: '123456', PASSWORD_DEFAULT); $stmt=mysqli_prepare($conn,"INSERT INTO account (Name,Email,Password,Account_Type,Status) VALUES (?,?,?,?,?)"); mysqli_stmt_bind_param($stmt,'sssis',$name,$email,$password,$role,$status); mysqli_stmt_execute($stmt); }
+    flash('success','Staff account saved.'); header('Location: manage_staff.php'); exit();
+}
+if (isset($_GET['delete'])) { $id=(int)$_GET['delete']; mysqli_query($conn,"DELETE FROM account WHERE ID=$id AND Account_Type IN (2,3) AND Email!='".mysqli_real_escape_string($conn,$_SESSION['email'])."'"); flash('success','Staff account deleted.'); header('Location: manage_staff.php'); exit(); }
+$edit=null; if(isset($_GET['edit'])){ $eid=(int)$_GET['edit']; $edit=mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM account WHERE ID=$eid AND Account_Type IN (2,3)")); }
+$result=mysqli_query($conn,"SELECT * FROM account WHERE Account_Type IN (2,3) ORDER BY Account_Type DESC, ID DESC");
+page_header('Manage Staff - PawFect Home'); page_title('Staff Account Management','Admin can create, edit and delete staff/admin accounts.');
+?>
+<div class="container py-5"><div class="card-clean p-4 mb-4"><h4><?php echo $edit?'Edit':'Add'; ?> Staff/Admin Account</h4><form method="post"><input type="hidden" name="id" value="<?php echo (int)($edit['ID']??0); ?>"><div class="form-row"><div class="col-md-3 form-group"><label>Name</label><input name="name" class="form-control" value="<?php echo h($edit['Name']??''); ?>" required></div><div class="col-md-3 form-group"><label>Email</label><input type="email" name="email" class="form-control" value="<?php echo h($edit['Email']??''); ?>" required></div><div class="col-md-2 form-group"><label>Role</label><select name="role" class="custom-select"><option value="2" <?php echo ($edit['Account_Type']??2)==2?'selected':''; ?>>Staff</option><option value="3" <?php echo ($edit['Account_Type']??0)==3?'selected':''; ?>>Admin</option></select></div><div class="col-md-2 form-group"><label>Status</label><select name="status" class="custom-select"><option <?php echo ($edit['Status']??'active')==='active'?'selected':''; ?>>active</option><option <?php echo ($edit['Status']??'')==='inactive'?'selected':''; ?>>inactive</option></select></div><div class="col-md-2 form-group"><label>Password</label><input type="text" name="password" class="form-control" placeholder="new only"></div></div><button name="save_staff" class="btn btn-primary">Save</button></form></div><div class="table-responsive card-clean"><table class="table mb-0"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Action</th></tr></thead><tbody>
+<?php while($u=mysqli_fetch_assoc($result)): ?><tr><td><?php echo h($u['Name']); ?></td><td><?php echo h($u['Email']); ?></td><td><?php echo $u['Account_Type']==3?'Admin':'Staff'; ?></td><td><?php echo status_badge($u['Status'] ?? 'active'); ?></td><td><a href="manage_staff.php?edit=<?php echo $u['ID']; ?>" class="btn btn-sm btn-primary">Edit</a> <a href="manage_staff.php?delete=<?php echo $u['ID']; ?>" onclick="return confirm('Delete this account?')" class="btn btn-sm btn-outline-danger">Delete</a></td></tr><?php endwhile; ?>
+</tbody></table></div></div>
+<?php page_footer(); ?>
