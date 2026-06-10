@@ -1,4 +1,9 @@
 <?php
+// Presentation mode: keep PHP notices/warnings out of the website UI.
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED & ~E_STRICT);
+
 if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.use_strict_mode', '1');
     session_cache_limiter('nocache');
@@ -88,7 +93,7 @@ function status_badge($status) {
     $s = strtolower((string)$status);
     $class = 'secondary';
     if (in_array($s, ['available','approved','completed','active','booked','paid'])) $class = 'success';
-    if (in_array($s, ['pending','processing','rescheduled','pending verification'])) $class = 'warning';
+    if (in_array($s, ['pending','processing','rescheduled','pending verification','reserved'])) $class = 'warning';
     if (in_array($s, ['rejected','cancelled','failed','inactive','adopted','refunded'])) $class = 'danger';
     return '<span class="badge badge-' . $class . ' text-uppercase">' . h($status) . '</span>';
 }

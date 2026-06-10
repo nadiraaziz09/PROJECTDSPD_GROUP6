@@ -1,23 +1,26 @@
 <?php
 /*
-    Real FPX / Malaysia online banking setup
-    ---------------------------------------
-    This project can redirect customers to a real ToyyibPay FPX bill when the credentials below are filled in.
-    1. Register/login at ToyyibPay or dev.toyyibpay.com for sandbox testing.
-    2. Create a category and copy the Category Code.
-    3. Copy your User Secret Key.
-    4. Change TOYYIBPAY_ENABLED to true.
+    ToyyibPay FPX / Malaysia online banking setup
+    ---------------------------------------------
+    The checkout page now sends Online Banking payments to ToyyibPay.
 
-    Without these merchant credentials, the system uses Manual Online Banking Transfer mode.
+    To activate real ToyyibPay redirection:
+    1. Login to ToyyibPay / dev.toyyibpay.com.
+    2. Copy your User Secret Key.
+    3. Create a Category and copy the Category Code.
+    4. Put both values below and change TOYYIBPAY_ENABLED to true.
+    5. Use TOYYIBPAY_SANDBOX=true for testing, false for live production.
+
+    If TOYYIBPAY_ENABLED stays false, the ToyyibPay page will show setup instructions instead of causing a 404 error.
 */
 define('TOYYIBPAY_ENABLED', false);
 define('TOYYIBPAY_SANDBOX', true);
-define('TOYYIBPAY_USER_SECRET_KEY', 'PUT_YOUR_TOYYIBPAY_USER_SECRET_KEY_HERE');
-define('TOYYIBPAY_CATEGORY_CODE', 'PUT_YOUR_TOYYIBPAY_CATEGORY_CODE_HERE');
+define('TOYYIBPAY_USER_SECRET_KEY', 'qhicglbk-ouu9-54js-5xn2-vr9i5tx0ezbt');
+define('TOYYIBPAY_CATEGORY_CODE', '1z7svuq3');
 
 define('BANK_ACCOUNT_NAME', 'PawFect Home Pet Adoption System');
 define('BANK_ACCOUNT_BANK', 'Maybank');
-define('BANK_ACCOUNT_NUMBER', '5628 1234 9876');
+define('BANK_ACCOUNT_NUMBER', '0082 4414 4517');
 
 function pawfect_base_url() {
     $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');

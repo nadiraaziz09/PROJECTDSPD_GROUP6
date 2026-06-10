@@ -11,7 +11,8 @@ if ($token === '') {
 $stmt = mysqli_prepare($conn, "SELECT ID, Name, Email, reset_token_expiry FROM account WHERE reset_token=? LIMIT 1");
 mysqli_stmt_bind_param($stmt, 's', $token);
 mysqli_stmt_execute($stmt);
-$user = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
+$result = mysqli_stmt_get_result($stmt);
+$user = mysqli_fetch_assoc($result);
 
 if (!$user || (!empty($user['reset_token_expiry']) && strtotime($user['reset_token_expiry']) < time())) {
     flash('error', 'Invalid or expired reset link. Please request a new one.');

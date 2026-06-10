@@ -4,7 +4,8 @@ $id = (int)($_GET['id'] ?? 0);
 $stmt = mysqli_prepare($conn, "SELECT * FROM pets WHERE id=? LIMIT 1");
 mysqli_stmt_bind_param($stmt, 'i', $id);
 mysqli_stmt_execute($stmt);
-$pet = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
+$result = mysqli_stmt_get_result($stmt);
+$pet = mysqli_fetch_assoc($result);
 if (!$pet) { flash('error', 'Pet not found.'); header('Location: pets.php'); exit(); }
 if (isset($_POST['wishlist'])) {
     require_role(1);
@@ -20,7 +21,7 @@ page_header($pet['name'] . ' - Pet Details', 'pets'); page_title($pet['name'], '
 ?>
 <div class="container py-5">
     <div class="row">
-        <div class="col-lg-6 mb-4"><img src="<?php echo h($pet['photo']); ?>" class="img-fluid rounded shadow" alt="<?php echo h($pet['name']); ?>"></div>
+        <div class="col-lg-6 mb-4"><img src="<?php echo h(pawfect_image_src($pet['photo'], 'img/about-1.jpg')); ?>" class="img-fluid rounded shadow" alt="<?php echo h($pet['name']); ?>"></div>
         <div class="col-lg-6">
             <div class="card-clean p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3"><h2 class="mb-0"><?php echo h($pet['name']); ?></h2><?php echo status_badge($pet['status']); ?></div>

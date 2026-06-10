@@ -12,8 +12,8 @@
 define('SMTP_ENABLED', true);
 define('SMTP_HOST', 'smtp.gmail.com');
 define('SMTP_PORT', 465);
-define('SMTP_USERNAME', 'ngujiahao@gmail.com');
-define('SMTP_PASSWORD', 'uiyssfohikkxyksb');
-define('SMTP_FROM_EMAIL', 'ngujiahao@gmail.com');
+define('SMTP_USERNAME', 'pawfecthome2@gmail.com');
+define('SMTP_PASSWORD', 'oziv aomb gtrx crnc');
+define('SMTP_FROM_EMAIL', 'pawfecthome2@gmail.com');
 define('SMTP_FROM_NAME', 'PawFect Home');
 ?>

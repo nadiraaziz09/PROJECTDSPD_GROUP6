@@ -1,5 +1,6 @@
 <?php
 include 'layout.php';
+include_once 'announcement_helpers.php';
 require_role(3);
 $user = current_user();
 $cards = [
@@ -9,6 +10,7 @@ $cards = [
     ['staff_applications.php','fas fa-clipboard-check','Applications','Approve or reject adoption applications.'],
     ['manage_payments.php','fas fa-credit-card','Product Payments','Track pet needs product transactions.'],
     ['manage_products.php','fas fa-shopping-bag','Manage Pet Needs','Add, edit and update store products.'],
+    ['manage_contact.php','fas fa-envelope','Contact Messages','View messages sent by users through the contact form.'],
     ['appointment.php','fas fa-calendar-check','Appointments','Manage customer visit bookings.'],
     ['reports.php','fas fa-chart-line','Reports','Monitor adoption activity and system usage.'],
     ['announcements.php','fas fa-bullhorn','Announcements','Create, edit and delete system notices.'],
@@ -16,7 +18,7 @@ $cards = [
 ];
 page_header('Admin Dashboard - PawFect Home', 'home'); page_title('Admin Dashboard', 'Welcome, ' . $user['Name'] . '. Control the full adoption system here.');
 ?>
-<div class="container py-5"><div class="row">
+<div class="container py-5"><?php render_announcement_notifications(3); ?><div class="row">
 <?php foreach ($cards as $c): ?><div class="col-md-4 mb-4"><div class="dashboard-card"><i class="<?php echo $c[1]; ?>"></i><h5><?php echo h($c[2]); ?></h5><p class="text-muted"><?php echo h($c[3]); ?></p><a href="<?php echo h($c[0]); ?>" class="btn btn-primary">Open</a></div></div><?php endforeach; ?>
 </div></div>
 <?php page_footer(); ?>

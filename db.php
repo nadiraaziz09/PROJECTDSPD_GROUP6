@@ -1,4 +1,9 @@
 <?php
+// Presentation mode: keep PHP notices/warnings out of the website UI.
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED & ~E_STRICT);
+
 // PawFect Home database connection
 // XAMPP default: username root, empty password. Change only if your MySQL login is different.
 $servername = "localhost";
@@ -31,6 +36,43 @@ function ensure_column($conn, $table, $column, $definition) {
     }
 }
 
+function sync_product_stock_quantity($conn) {
+    if (!table_exists($conn, 'products')) return;
+    ensure_column($conn, 'products', 'quantity', "INT NOT NULL DEFAULT 0 AFTER `stock`");
+    // Older project pages use stock, while the updated requirement uses quantity.
+    // Keep both columns in sync so existing pages continue to work safely.
+    mysqli_query($conn, "UPDATE products SET quantity = stock WHERE (quantity IS NULL OR quantity = 0) AND stock > 0");
+    mysqli_query($conn, "UPDATE products SET stock = quantity WHERE (stock IS NULL OR stock = 0) AND quantity > 0");
+}
+
+function set_product_stock($conn, $productId, $qty) {
+    sync_product_stock_quantity($conn);
+    $productId = (int)$productId;
+    $qty = max(0, (int)$qty);
+    if ($productId > 0) {
+        mysqli_query($conn, "UPDATE products SET stock=$qty, quantity=$qty WHERE id=$productId");
+    }
+}
+
+function decrease_product_stock($conn, $productId, $qty) {
+    sync_product_stock_quantity($conn);
+    $productId = (int)$productId;
+    $qty = max(1, (int)$qty);
+    if ($productId > 0) {
+        mysqli_query($conn, "UPDATE products SET stock=GREATEST(stock-$qty,0), quantity=GREATEST(quantity-$qty,0) WHERE id=$productId");
+    }
+}
+
+function mark_product_payment_completed($conn, $paymentId, $completed = true) {
+    if (!table_exists($conn, 'product_payments')) return;
+    ensure_column($conn, 'product_payments', 'payment_completed', "TINYINT(1) NOT NULL DEFAULT 0 AFTER `status`");
+    $paymentId = (int)$paymentId;
+    $value = $completed ? 1 : 0;
+    if ($paymentId > 0) {
+        mysqli_query($conn, "UPDATE product_payments SET payment_completed=$value WHERE id=$paymentId");
+    }
+}
+
 function ensure_pawfect_schema($conn) {
     // Keep the original account table and extend it for profile management.
     if (table_exists($conn, 'account')) {
@@ -41,12 +83,43 @@ function ensure_pawfect_schema($conn) {
         ensure_column($conn, 'account', 'reset_token_expiry', "DATETIME DEFAULT NULL");
     }
 
+    if (table_exists($conn, 'appointments')) {
+        ensure_column($conn, 'appointments', 'appointment_type', "varchar(40) NOT NULL DEFAULT 'general' AFTER `pet_id`");
+    }
+
+    if (table_exists($conn, 'products')) {
+        sync_product_stock_quantity($conn);
+    }
+
+    if (table_exists($conn, 'orders')) {
+        ensure_column($conn, 'orders', 'payment_completed', "TINYINT(1) NOT NULL DEFAULT 0");
+    }
+
     if (table_exists($conn, 'product_payments')) {
+        ensure_column($conn, 'product_payments', 'payment_completed', "TINYINT(1) NOT NULL DEFAULT 0 AFTER `status`");
+        mysqli_query($conn, "UPDATE product_payments SET payment_completed=1 WHERE LOWER(status)='completed'");
+        mysqli_query($conn, "UPDATE product_payments SET payment_completed=0 WHERE LOWER(status)<>'completed'");
         ensure_column($conn, 'product_payments', 'bank_name', "varchar(80) DEFAULT NULL");
         ensure_column($conn, 'product_payments', 'bank_reference', "varchar(80) DEFAULT NULL");
         ensure_column($conn, 'product_payments', 'payer_name', "varchar(120) DEFAULT NULL");
         ensure_column($conn, 'product_payments', 'gateway_provider', "varchar(80) DEFAULT NULL");
         ensure_column($conn, 'product_payments', 'gateway_bill_code', "varchar(80) DEFAULT NULL");
+        ensure_column($conn, 'product_payments', 'cart_items', "TEXT DEFAULT NULL");
+        ensure_column($conn, 'product_payments', 'receipt_file', "varchar(255) DEFAULT NULL");
+        ensure_column($conn, 'product_payments', 'paid_amount', "DECIMAL(10,2) DEFAULT NULL");
+        ensure_column($conn, 'product_payments', 'refund_status', "varchar(40) NOT NULL DEFAULT 'not required'");
+        ensure_column($conn, 'product_payments', 'refund_amount', "DECIMAL(10,2) DEFAULT NULL");
+        ensure_column($conn, 'product_payments', 'refund_qr_file', "varchar(255) DEFAULT NULL");
+        ensure_column($conn, 'product_payments', 'refund_receipt_file', "varchar(255) DEFAULT NULL");
+        ensure_column($conn, 'product_payments', 'refund_user_note', "TEXT DEFAULT NULL");
+        ensure_column($conn, 'product_payments', 'refund_issue_reported_at', "DATETIME DEFAULT NULL");
+        ensure_column($conn, 'product_payments', 'refund_updated_at', "DATETIME DEFAULT NULL");
+        ensure_column($conn, 'product_payments', 'underpay_status', "varchar(40) NOT NULL DEFAULT 'not required'");
+        ensure_column($conn, 'product_payments', 'underpay_amount', "DECIMAL(10,2) DEFAULT NULL");
+        ensure_column($conn, 'product_payments', 'underpay_message', "TEXT DEFAULT NULL");
+        ensure_column($conn, 'product_payments', 'topup_receipt_file', "varchar(255) DEFAULT NULL");
+        ensure_column($conn, 'product_payments', 'topup_paid_amount', "DECIMAL(10,2) DEFAULT NULL");
+        ensure_column($conn, 'product_payments', 'underpay_updated_at', "DATETIME DEFAULT NULL");
     }
 
     mysqli_query($conn, "CREATE TABLE IF NOT EXISTS pets (
@@ -103,6 +176,7 @@ function ensure_pawfect_schema($conn) {
         id INT AUTO_INCREMENT PRIMARY KEY,
         user_id INT NOT NULL,
         pet_id INT NULL,
+        appointment_type VARCHAR(40) NOT NULL DEFAULT 'general',
         appointment_date DATE NOT NULL,
         appointment_time TIME NOT NULL,
         status VARCHAR(30) NOT NULL DEFAULT 'booked',
@@ -120,6 +194,7 @@ function ensure_pawfect_schema($conn) {
         description TEXT NOT NULL,
         price DECIMAL(10,2) NOT NULL,
         stock INT NOT NULL DEFAULT 0,
+        quantity INT NOT NULL DEFAULT 0,
         photo VARCHAR(255) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
@@ -136,9 +211,26 @@ function ensure_pawfect_schema($conn) {
         bank_reference VARCHAR(80) DEFAULT NULL,
         payer_name VARCHAR(120) DEFAULT NULL,
         status VARCHAR(30) NOT NULL DEFAULT 'pending verification',
+        payment_completed TINYINT(1) NOT NULL DEFAULT 0,
         transaction_id VARCHAR(80) NOT NULL,
         gateway_provider VARCHAR(80) DEFAULT NULL,
         gateway_bill_code VARCHAR(80) DEFAULT NULL,
+        cart_items TEXT DEFAULT NULL,
+        receipt_file VARCHAR(255) DEFAULT NULL,
+        paid_amount DECIMAL(10,2) DEFAULT NULL,
+        refund_status VARCHAR(40) NOT NULL DEFAULT 'not required',
+        refund_amount DECIMAL(10,2) DEFAULT NULL,
+        refund_qr_file VARCHAR(255) DEFAULT NULL,
+        refund_receipt_file VARCHAR(255) DEFAULT NULL,
+        refund_user_note TEXT DEFAULT NULL,
+        refund_issue_reported_at DATETIME DEFAULT NULL,
+        refund_updated_at DATETIME DEFAULT NULL,
+        underpay_status VARCHAR(40) NOT NULL DEFAULT 'not required',
+        underpay_amount DECIMAL(10,2) DEFAULT NULL,
+        underpay_message TEXT DEFAULT NULL,
+        topup_receipt_file VARCHAR(255) DEFAULT NULL,
+        topup_paid_amount DECIMAL(10,2) DEFAULT NULL,
+        underpay_updated_at DATETIME DEFAULT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES account(ID) ON DELETE CASCADE,
         FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
@@ -205,18 +297,38 @@ function ensure_pawfect_schema($conn) {
     $count = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM products"));
     if ((int)$count['total'] === 0) {
         $products = [
-            ['Premium Dog Food Pack','Food','Dry food pack for dogs. Suitable as a starter food pack for newly adopted dogs.',45.00,30,'img/blog-3.jpg'],
-            ['Cat Food & Treats Set','Food','Basic cat food and treat set for daily feeding support.',39.00,25,'img/about-3.jpg'],
-            ['Pet Grooming Kit','Care','Brush, nail clipper and basic grooming tools for simple home care.',38.00,20,'img/blog-1.jpg'],
-            ['Comfort Pet Bed','Accessories','Soft washable bed for cats and small dogs.',75.00,15,'img/about-1.jpg'],
-            ['Toy Bundle','Toys','Safe toys to help pets stay active and happy.',25.00,50,'img/blog-2.jpg'],
-            ['Feeding Bowl Set','Accessories','Simple feeding bowl set for food and water.',28.00,40,'img/feature.jpg']
+            ['Premium Dog Food Pack','Food','Dry food pack for dogs. Suitable as a starter food pack for newly adopted dogs.',45.00,30,'img/premium-dog-food-pack.jpg'],
+            ['Cat Food & Treats Set','Food','Basic cat food and treat set for daily feeding support.',39.00,25,'img/cat-food.jpg'],
+            ['Pet Grooming Kit','Care','Brush, nail clipper and basic grooming tools for simple home care.',38.00,20,'img/pet-grooming-kit.jpg'],
+            ['Comfort Pet Bed','Accessories','Soft, washable bed for cats and small dogs, offering a cozy resting spot.',75.00,15,'img/comfort-pet-bed.jpg'],
+            ['Toy Bundle','Toys','Safe toys designed to keep pets active, entertained, and happy throughout the day.',25.00,50,'img/toy-bundle.jpg'],
+            ['Feeding Bowl Set','Accessories','Simple feeding bowl set for food and water, ideal for daily use and easy cleaning.',28.00,40,'img/feeding-bowl-set.jpg']
         ];
-        $stmt = mysqli_prepare($conn, "INSERT INTO products (name,category,description,price,stock,photo) VALUES (?,?,?,?,?,?)");
+        $stmt = mysqli_prepare($conn, "INSERT INTO products (name,category,description,price,stock,quantity,photo) VALUES (?,?,?,?,?,?,?)");
         foreach ($products as $p) {
-            mysqli_stmt_bind_param($stmt, 'sssdis', $p[0],$p[1],$p[2],$p[3],$p[4],$p[5]);
+            mysqli_stmt_bind_param($stmt, 'sssdiis', $p[0],$p[1],$p[2],$p[3],$p[4],$p[4],$p[5]);
             mysqli_stmt_execute($stmt);
         }
+    }
+
+    // Keep only these three requested product descriptions updated on existing databases.
+    mysqli_query($conn, "UPDATE products SET description='Soft, washable bed for cats and small dogs, offering a cozy resting spot.' WHERE LOWER(name) IN ('comfort pet bed','pet bed')");
+    mysqli_query($conn, "UPDATE products SET description='Simple feeding bowl set for food and water, ideal for daily use and easy cleaning.' WHERE LOWER(name) IN ('feeding bowl set','bowl set')");
+    mysqli_query($conn, "UPDATE products SET description='Safe toys designed to keep pets active, entertained, and happy throughout the day.' WHERE LOWER(name)='toy bundle'");
+    sync_product_stock_quantity($conn);
+
+    $defaultProductPhotos = [
+        'Premium Dog Food Pack' => ['img/premium-dog-food-pack.jpg', 'img/blog-3.jpg'],
+        'Cat Food & Treats Set' => ['img/cat-food.jpg', 'img/about-3.jpg'],
+        'Pet Grooming Kit' => ['img/pet-grooming-kit.jpg', 'img/blog-1.jpg'],
+        'Comfort Pet Bed' => ['img/comfort-pet-bed.jpg', 'img/about-1.jpg'],
+        'Toy Bundle' => ['img/toy-bundle.jpg', 'img/blog-2.jpg'],
+        'Feeding Bowl Set' => ['img/feeding-bowl-set.jpg', 'img/feature.jpg']
+    ];
+    foreach ($defaultProductPhotos as $productName => $paths) {
+        $stmt = mysqli_prepare($conn, "UPDATE products SET photo=? WHERE name=? AND photo=?");
+        mysqli_stmt_bind_param($stmt, 'sss', $paths[0], $productName, $paths[1]);
+        mysqli_stmt_execute($stmt);
     }
 
     $count = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM announcements"));

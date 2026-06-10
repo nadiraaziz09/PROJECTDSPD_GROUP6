@@ -2,13 +2,18 @@
 include 'layout.php';
 require_login();
 $user = current_user();
-page_header('My Profile - PawFect Home'); page_title('My Profile', 'View your account and personal information.');
+$profilePhoto = pawfect_image_src($user['Profile_Photo'] ?? '', 'img/user.jpg');
+page_header('My Profile - PawFect Home');
+page_title('My Profile', 'View your account and personal information.');
 ?>
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <div class="card-clean p-4">
-                <div class="mb-4">
+                <div class="text-center mb-4">
+                    <img src="<?php echo h($profilePhoto); ?>" alt="Profile Photo" style="width:130px;height:130px;object-fit:cover;border-radius:50%;box-shadow:0 8px 20px rgba(0,0,0,.12);">
+                </div>
+                <div class="mb-4 text-center">
                     <h3 class="mb-1"><?php echo h($user['Name']); ?></h3>
                     <p class="text-muted mb-2"><?php echo h($user['Email']); ?></p>
                     <?php echo status_badge($user['Status']); ?>

@@ -1,5 +1,6 @@
 <?php
 include 'layout.php';
+include_once 'announcement_helpers.php';
 require_role(1);
 $user = current_user();
 $cards = [
@@ -14,9 +15,10 @@ $cards = [
 page_header('Customer Dashboard - PawFect Home', 'home'); page_title('Customer Dashboard', 'Welcome, ' . $user['Name'] . '. Manage your adoption journey here.');
 ?>
 <div class="container py-5">
+    <?php render_announcement_notifications(1); ?>
     <div class="row">
         <?php foreach ($cards as $c): ?>
-        <div class="col-md-4 mb-4"><div class="dashboard-card"><i class="<?php echo $c[1]; ?>"></i><h5><?php echo h($c[2]); ?></h5><p class="text-muted"><?php echo h($c[3]); ?></p><a href="<?php echo h($c[0]); ?>" class="btn btn-primary">Open</a></div></div>
+        <div class="col-md-4 mb-4 <?php echo $c[2] === 'My Profile' ? 'offset-md-4' : ''; ?>"><div class="dashboard-card"><i class="<?php echo $c[1]; ?>"></i><h5><?php echo h($c[2]); ?></h5><p class="text-muted"><?php echo h($c[3]); ?></p><a href="<?php echo h($c[0]); ?>" class="btn btn-primary">Open</a></div></div>
         <?php endforeach; ?>
     </div>
 </div>

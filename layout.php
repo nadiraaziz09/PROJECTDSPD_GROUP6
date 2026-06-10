@@ -1,4 +1,9 @@
 <?php
+// Presentation mode: keep PHP notices/warnings out of the website UI.
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED & ~E_STRICT);
+
 // PREVENT BACK BUTTON CACHE
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
@@ -6,6 +11,41 @@ header("Pragma: no-cache");
 header("Expires: 0");
 
 include_once 'auth.php';
+
+
+if (!function_exists('pawfect_image_src')) {
+    function pawfect_image_src($path, $fallback = 'img/user.jpg') {
+        $path = trim((string)$path);
+        $fallback = trim((string)$fallback) ?: 'img/user.jpg';
+
+        if ($path === '') {
+            return $fallback;
+        }
+
+        if (preg_match('/^https?:\/\//i', $path)) {
+            return $path;
+        }
+
+        $clean = str_replace('\\', '/', $path);
+        $clean = ltrim($clean, '/');
+
+        if (file_exists(__DIR__ . '/' . $clean)) {
+            return $clean;
+        }
+
+        $basename = basename($clean);
+        if ($basename !== '') {
+            foreach (['uploads/profiles', 'uploads/pets', 'uploads/products', 'uploads/give_pet', 'uploads/receipts', 'img'] as $folder) {
+                $candidate = $folder . '/' . $basename;
+                if (file_exists(__DIR__ . '/' . $candidate)) {
+                    return $candidate;
+                }
+            }
+        }
+
+        return $fallback;
+    }
+}
 
 function page_header($title = 'PawFect Home', $active = '') {
     $loggedIn = !empty($_SESSION['email']);
@@ -88,7 +128,9 @@ function page_header($title = 'PawFect Home', $active = '') {
                     <?php endif; ?>
                     <a href="appointment.php" class="nav-item nav-link <?php echo $active==='appointment'?'active':''; ?>">Appointment</a>
                     <?php if ($loggedIn && in_array((int)($_SESSION['role'] ?? 0), [2,3], true)): ?>
+                        <a href="staff_applications.php" class="nav-item nav-link <?php echo $active==='staff_applications'?'active':''; ?>">Applications</a>
                         <a href="manage_products.php" class="nav-item nav-link <?php echo $active==='manage_products'?'active':''; ?>">Manage Pet Needs</a>
+                        <a href="manage_payments.php" class="nav-item nav-link <?php echo $active==='payments'?'active':''; ?>">Payments</a>
                     <?php endif; ?>
                     <a href="contact.php" class="nav-item nav-link <?php echo $active==='contact'?'active':''; ?>">Contact</a>
                 </div>
@@ -123,6 +165,7 @@ function page_header($title = 'PawFect Home', $active = '') {
 }
 
 function page_title($title, $subtitle = '') { ?>
+    <script>document.body.classList.add('has-page-hero');</script>
     <section class="page-hero text-center text-white">
         <div class="container">
             <h1 class="display-4 mb-2"><?php echo h($title); ?></h1>

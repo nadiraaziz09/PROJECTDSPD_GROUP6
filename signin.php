@@ -38,9 +38,6 @@ page_header('Sign In - PawFect Home');
             <button type="submit" name="enter" class="btn btn-primary btn-block">Sign In</button>
         </form>
         <div class="text-center mt-3"><a href="forgot-password.php">Forgot password?</a> · <a href="signup.php">Create account</a></div>
-        <div class="alert alert-light border mt-4 small mb-0">
-            Demo roles from database: customer / staff / admin are redirected to their own dashboards.
-        </div>
     </div>
 </div>
 <?php page_footer(); ?>

@@ -50,7 +50,7 @@ page_title('Manage Pet Needs Products', 'Staff can add, edit, delete and update 
             <?php endif; ?>
             <?php while($p = mysqli_fetch_assoc($result)): ?>
                 <tr>
-                    <td><img src="<?php echo h($p['photo']); ?>" style="width:75px;height:55px;object-fit:cover;border-radius:8px" alt="<?php echo h($p['name']); ?>"></td>
+                    <td><img src="<?php echo h(pawfect_image_src($p['photo'], 'img/feature.jpg')); ?>" style="width:75px;height:55px;object-fit:cover;border-radius:8px" alt="<?php echo h($p['name']); ?>"></td>
                     <td><strong><?php echo h($p['name']); ?></strong></td>
                     <td><?php echo h($p['category']); ?></td>
                     <td>RM <?php echo number_format($p['price'], 2); ?></td>

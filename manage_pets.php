@@ -76,7 +76,7 @@ page_title('Pet Management','Add, edit and update pet profiles. Pets are for ado
                 <?php while($p = mysqli_fetch_assoc($result)): ?>
                     <tr>
                         <td>
-                            <img src="<?php echo h($p['photo']); ?>" 
+                            <img src="<?php echo h(pawfect_image_src($p['photo'], 'img/about-1.jpg')); ?>" 
                                  style="width:70px;height:50px;object-fit:cover;border-radius:8px">
                         </td>
 

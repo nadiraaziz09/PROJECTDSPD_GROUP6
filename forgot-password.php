@@ -41,7 +41,6 @@ function send_reset_email($toEmail, $toName, $resetLink, &$errorMessage) {
             $mail->Subject = $subject;
             $mail->Body = $htmlBody;
             $mail->AltBody = $plainBody;
-            $mail->SMTPDebug = 2;
             $mail->send();
             return true;
         } catch (Exception $e) {
@@ -67,7 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt = mysqli_prepare($conn, "SELECT ID, Name, Email FROM account WHERE Email=? AND Status='active' LIMIT 1");
     mysqli_stmt_bind_param($stmt, 's', $email);
     mysqli_stmt_execute($stmt);
-    $user = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
+    $result = mysqli_stmt_get_result($stmt);
+    $user = mysqli_fetch_assoc($result);
 
     if ($user) {
         $token = bin2hex(random_bytes(32));
