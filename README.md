@@ -1,105 +1,36 @@
-# PawFect Home
+<?php
 
-PawFect Home is a PHP and MySQL-based pet adoption system with a pet needs store, appointment booking, adoption applications, payment handling, and role-based dashboards for customers, staff, and administrators.
+/**
+ * Simplified Chinese PHPMailer language file: refer to English translation for definitive list
+ * @package PHPMailer
+ * @author liqwei <liqwei@liqwei.com>
+ * @author young <masxy@foxmail.com>
+ * @author Teddysun <i@teddysun.com>
+ */
 
-## Features
-
-### Customer
-- Browse available pets by type, breed, age, gender, and keyword
-- Save pets to wishlist
-- Submit adoption applications
-- Book, edit, and cancel shelter appointments
-- Shop for pet food and pet care products
-- Make product payments and view payment history
-- Update profile details
-
-### Staff
-- Manage pet records and health information
-- Review adoption applications and discussion requests
-- View upcoming appointments
-- Monitor system activity related to adoption workflow
-
-### Admin
-- Manage customer accounts
-- Manage staff accounts
-- Manage pets and product listings
-- Review contact messages
-- Manage payments, reports, and announcements
-
-## Tech Stack
-- **Backend:** PHP
-- **Database:** MySQL
-- **Frontend:** HTML, CSS, JavaScript, Bootstrap
-- **Libraries:** jQuery, Owl Carousel, Font Awesome, Tempus Dominus, PHPMailer
-
-## Project Structure
-
-```text
-Project/
-├── index.php
-├── about.php
-├── pets.php
-├── products.php
-├── adoption_apply.php
-├── appointment.php
-├── payment.php
-├── contact.php
-├── manage_*.php
-├── css/
-├── js/
-├── img/
-├── lib/
-└── PHPMailer-master/
-```
-
-## Requirements
-- PHP 7.4 or later
-- MySQL / MariaDB
-- Apache server
-- XAMPP, WAMP, MAMP, or similar local server environment
-
-## Setup Guide
-
-### 1. Extract the project
-Place the `Project` folder inside your web server directory, for example:
-
-```text
-htdocs/Project
-```
-
-### 2. Create the database
-Create a MySQL database named:
-
-```text
-project2026
-```
-
-### 3. Import the database tables
-Import the SQL dump for the project if you have one, or create the required tables manually based on the application logic.
-
-### 4. Configure database connection
-Open `db.php` and make sure the MySQL credentials match your local setup.
-
-### 5. Configure email settings
-Update `mail_config.php` with your SMTP details if you want password reset emails to work properly.
-
-### 6. Configure payment settings
-Update `payment_gateway_config.php` if you want to enable the ToyyibPay online banking flow.
-
-### 7. Run the project
-Open the project in your browser:
-
-```text
-http://localhost/Project/
-```
-
-## Notes
-- The system uses role-based login routing for customers, staff, and admins.
-- Some features depend on database tables being present, such as pets, products, applications, appointments, payments, and announcements.
-- Before publishing to GitHub, remove any real credentials from configuration files and replace them with environment variables or placeholders.
-
-## Screenshots
-Add project screenshots here if needed.
-
-## License
-This project was created for academic / demonstration purposes. Add your preferred license before public release.
+$PHPMAILER_LANG['authenticate']         = 'SMTP 错误：登录失败。';
+$PHPMAILER_LANG['buggy_php']            = '您的 PHP 版本存在漏洞，可能会导致消息损坏。为修复此问题，请切换到使用 SMTP 发送，在您的 php.ini 中禁用 mail.add_x_header 选项。切换到 MacOS 或 Linux，或将您的 PHP 升级到 7.0.17+ 或 7.1.3+ 版本。';
+$PHPMAILER_LANG['connect_host']         = 'SMTP 错误：无法连接到 SMTP 主机。';
+$PHPMAILER_LANG['data_not_accepted']    = 'SMTP 错误：数据不被接受。';
+$PHPMAILER_LANG['empty_message']        = '邮件正文为空。';
+$PHPMAILER_LANG['encoding']             = '未知编码：';
+$PHPMAILER_LANG['execute']              = '无法执行：';
+$PHPMAILER_LANG['extension_missing']    = '缺少扩展名：';
+$PHPMAILER_LANG['file_access']          = '无法访问文件：';
+$PHPMAILER_LANG['file_open']            = '文件错误：无法打开文件：';
+$PHPMAILER_LANG['from_failed']          = '发送地址错误：';
+$PHPMAILER_LANG['instantiate']          = '未知函数调用。';
+$PHPMAILER_LANG['invalid_address']      = '发送失败，电子邮箱地址是无效的：';
+$PHPMAILER_LANG['mailer_not_supported'] = '发信客户端不被支持。';
+$PHPMAILER_LANG['provide_address']      = '必须提供至少一个收件人地址。';
+$PHPMAILER_LANG['recipients_failed']    = 'SMTP 错误：收件人地址错误：';
+$PHPMAILER_LANG['smtp_connect_failed']  = 'SMTP服务器连接失败。';
+$PHPMAILER_LANG['smtp_error']           = 'SMTP服务器出错：';
+$PHPMAILER_LANG['variable_set']         = '无法设置或重置变量：';
+$PHPMAILER_LANG['invalid_header']       = '无效的标题名称或值';
+$PHPMAILER_LANG['invalid_hostentry']    = '无效的hostentry： ';
+$PHPMAILER_LANG['invalid_host']         = '无效的主机：';
+$PHPMAILER_LANG['signing']              = '签名错误：';
+$PHPMAILER_LANG['smtp_code']            = 'SMTP代码： ';
+$PHPMAILER_LANG['smtp_code_ex']         = '附加SMTP信息： ';
+$PHPMAILER_LANG['smtp_detail']          = '详情:';
