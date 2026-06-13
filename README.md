@@ -214,21 +214,37 @@ http://localhost/Project/
 ## Project Structure
 
 Project/
+
 ├── css/
+
 ├── js/
+
 ├── img/
+
 ├── uploads/
+
 ├── PHPMailer-master/
+
 ├── db.php
+
 ├── mail_config.php
+
 ├── signin.php
+
 ├── signup.php
+
 ├── pets.php
+
 ├── adoption_apply.php
+
 ├── appointment.php
+
 ├── products.php
+
 ├── payment.php
+
 ├── reports.php
+
 └── index.php
 
 ---
