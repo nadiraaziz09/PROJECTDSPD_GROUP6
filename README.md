@@ -1,105 +1,248 @@
-# PawFect Home
+# PawFect Home - Pet Adoption System
 
-PawFect Home is a PHP and MySQL-based pet adoption system with a pet needs store, appointment booking, adoption applications, payment handling, and role-based dashboards for customers, staff, and administrators.
+## Overview
+
+PawFect Home is a web-based Pet Adoption Management System developed using PHP and MySQL. The system helps adoption centres manage pets, adoption applications, appointments, pet products, payments, and user accounts through a centralized platform.
+
+The website allows users to browse available pets, submit adoption requests, schedule appointments, purchase pet-related products, and track their application status online.
+
+---
 
 ## Features
 
-### Customer
-- Browse available pets by type, breed, age, gender, and keyword
-- Save pets to wishlist
-- Submit adoption applications
-- Book, edit, and cancel shelter appointments
-- Shop for pet food and pet care products
-- Make product payments and view payment history
-- Update profile details
+### User Features
 
-### Staff
-- Manage pet records and health information
-- Review adoption applications and discussion requests
-- View upcoming appointments
-- Monitor system activity related to adoption workflow
+* User registration and login
+* Profile management
+* Browse available pets
+* View detailed pet information
+* Submit pet adoption applications
+* Manage wishlist
+* Book appointments with the adoption centre
+* Purchase pet products and necessities
+* View payment history
+* Contact the adoption centre
+* Password recovery via email
 
-### Admin
-- Manage customer accounts
-- Manage staff accounts
-- Manage pets and product listings
-- Review contact messages
-- Manage payments, reports, and announcements
+### Staff Features
 
-## Tech Stack
-- **Backend:** PHP
-- **Database:** MySQL
-- **Frontend:** HTML, CSS, JavaScript, Bootstrap
-- **Libraries:** jQuery, Owl Carousel, Font Awesome, Tempus Dominus, PHPMailer
+* Review adoption applications
+* Manage pet records
+* Update pet health information
+* Process appointments
+* Monitor customer inquiries
+
+### Administrator Features
+
+* Manage users
+* Manage staff accounts
+* Manage pets
+* Manage products
+* Manage payments
+* Generate reports
+* Manage contact messages
+* Monitor adoption activities
+
+---
+
+## Technologies Used
+
+### Frontend
+
+* HTML5
+* CSS3
+* Bootstrap
+* JavaScript
+* Font Awesome
+
+### Backend
+
+* PHP
+
+### Database
+
+* MySQL
+
+### External Libraries
+
+* PHPMailer (Email Notifications)
+* ToyyibPay Payment Gateway Integration
+
+---
+
+## System Modules
+
+### Authentication Module
+
+Files:
+
+* signin.php
+* signup.php
+* logout.php
+* forgot-password.php
+* reset-password.php
+* change-password.php
+
+Functions:
+
+* User authentication
+* Password reset via email
+* Session management
+
+### Pet Management Module
+
+Files:
+
+* pets.php
+* pet_details.php
+* pet_form.php
+* manage_pets.php
+* pet_health.php
+
+Functions:
+
+* Add, edit and delete pet records
+* Display pet details
+* Manage pet health information
+
+### Adoption Module
+
+Files:
+
+* adoption_apply.php
+* applications.php
+* staff_applications.php
+
+Functions:
+
+* Submit adoption requests
+* Review applications
+* Track application status
+
+### Appointment Module
+
+Files:
+
+* appointment.php
+
+Functions:
+
+* Appointment scheduling
+* Appointment management
+
+### Product & Payment Module
+
+Files:
+
+* products.php
+* payment.php
+* payment_history.php
+* receipt.php
+* qr_payment.php
+* bank_payment.php
+* manual_bank_payment.php
+
+Functions:
+
+* Product purchasing
+* QR payment support
+* Manual bank transfer verification
+* Payment history tracking
+
+### Reporting Module
+
+Files:
+
+* reports.php
+* report_pdf.php
+
+Functions:
+
+* Generate reports
+* Export PDF reports
+
+---
+
+## Database Configuration
+
+Database connection settings are stored in:
+
+db.php
+
+Update the following values according to your MySQL configuration:
+
+* Host
+* Database Name
+* Username
+* Password
+
+---
+
+## Email Configuration
+
+Email settings are stored in:
+
+mail_config.php
+
+Example:
+
+define('SMTP_FROM_EMAIL', '[pawfecthome2@gmail.com](mailto:pawfecthome2@gmail.com)');
+define('SMTP_FROM_NAME', 'PawFect Home');
+
+Configure your SMTP credentials before deploying the system.
+
+---
+
+## Installation Guide
+
+1. Install XAMPP or WAMP.
+2. Place the project folder inside:
+
+   * XAMPP: htdocs/
+   * WAMP: www/
+3. Create a MySQL database.
+4. Import the project database SQL file.
+5. Configure database credentials in db.php.
+6. Configure email settings in mail_config.php.
+7. Start Apache and MySQL services.
+8. Open the browser and navigate to:
+
+http://localhost/Project/
+
+---
 
 ## Project Structure
 
-```text
 Project/
-├── index.php
-├── about.php
-├── pets.php
-├── products.php
-├── adoption_apply.php
-├── appointment.php
-├── payment.php
-├── contact.php
-├── manage_*.php
 ├── css/
 ├── js/
 ├── img/
-├── lib/
-└── PHPMailer-master/
-```
+├── uploads/
+├── PHPMailer-master/
+├── db.php
+├── mail_config.php
+├── signin.php
+├── signup.php
+├── pets.php
+├── adoption_apply.php
+├── appointment.php
+├── products.php
+├── payment.php
+├── reports.php
+└── index.php
 
-## Requirements
-- PHP 7.4 or later
-- MySQL / MariaDB
-- Apache server
-- XAMPP, WAMP, MAMP, or similar local server environment
+---
 
-## Setup Guide
+## Future Improvements
 
-### 1. Extract the project
-Place the `Project` folder inside your web server directory, for example:
+* Mobile application integration
+* Online pet adoption interview system
+* Real-time notifications
+* AI-based pet recommendation system
+* Enhanced analytics dashboard
 
-```text
-htdocs/Project
-```
+---
 
-### 2. Create the database
-Create a MySQL database named:
+## Authors
 
-```text
-project2026
-```
-
-### 3. Import the database tables
-Import the SQL dump for the project if you have one, or create the required tables manually based on the application logic.
-
-### 4. Configure database connection
-Open `db.php` and make sure the MySQL credentials match your local setup.
-
-### 5. Configure email settings
-Update `mail_config.php` with your SMTP details if you want password reset emails to work properly.
-
-### 6. Configure payment settings
-Update `payment_gateway_config.php` if you want to enable the ToyyibPay online banking flow.
-
-### 7. Run the project
-Open the project in your browser:
-
-```text
-http://localhost/Project/
-```
-
-## Notes
-- The system uses role-based login routing for customers, staff, and admins.
-- Some features depend on database tables being present, such as pets, products, applications, appointments, payments, and announcements.
-- Before publishing to GitHub, remove any real credentials from configuration files and replace them with environment variables or placeholders.
-
-## Screenshots
-Add project screenshots here if needed.
-
-## License
 This project was created for academic / demonstration purposes. Add your preferred license before public release.
